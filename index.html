@@ -220,126 +220,121 @@
         <span id="total-visit-count">Loading total visits...</span>
     </div>
 
-    <script>
-        const subscriptionLink = "https://raw.githubusercontent.com/sinavm/vpn-sinavm/main/sub-link";
+<script>
+    const subscriptionLink = "https://raw.githubusercontent.com/sinavm/vpn-sinavm/main/sub-link";
 
-        function copySubscriptionLink() {
-            navigator.clipboard.writeText(subscriptionLink).then(() => {
-                alert('Subscription link copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
+    function copySubscriptionLink() {
+        navigator.clipboard.writeText(subscriptionLink).then(() => {
+            alert('Subscription link copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    async function getFlagCode(country) {
+        try {
+            const response = await fetch('countries.lock');
+            const data = await response.json();
+            const code = data[country]?.toLowerCase();
+            return code || "globe";
+        } catch (error) {
+            return "globe";
         }
+    }
 
-        async function getFlagCode(country) {
-            try {
-                const response = await fetch('countries.lock');
-                const data = await response.json();
-                const code = data[country]?.toLowerCase();
-                return code || "globe";
-            } catch (error) {
-                return "globe";
+    async function displayConfigs(data) {
+        const configsContainer = document.getElementById('configs');
+        const groupedConfigs = data.reduce((acc, config) => {
+            const country = config.country_text;
+            if (!acc[country]) {
+                acc[country] = [];
             }
-        }
+            acc[country].push(config);
+            return acc;
+        }, {});
 
-        async function displayConfigs(data) {
-            const configsContainer = document.getElementById('configs');
-            const groupedConfigs = data.reduce((acc, config) => {
-                const country = config.country_text;
-                if (!acc[country]) {
-                    acc[country] = [];
-                }
-                acc[country].push(config);
-                return acc;
-            }, {});
+        for (const [country, configs] of Object.entries(groupedConfigs)) {
+            const card = document.createElement('div');
+            card.className = 'card fade-in';
+            const flagCode = await getFlagCode(country);
+            card.innerHTML = `
+                <div class="card-header">
+                    <h2>
+                        <span class="fi fi-${flagCode}"></span>
+                        ${country}
+                    </h2>
+                    <button class="copy-all-button" onclick="copyAllConfigs('${country}')">
+                        <span class="material-icons">content_copy_all</span> Copy All
+                    </button>
+                </div>
+            `;
 
-            for (const [country, configs] of Object.entries(groupedConfigs)) {
-                const card = document.createElement('div');
-                card.className = 'card fade-in';
-                const flagCode = await getFlagCode(country);
-                card.innerHTML = `
-                    <div class="card-header">
-                        <h2>
-                            <span class="fi fi-${flagCode}"></span>
-                            ${country}
-                        </h2>
-                        <button class="copy-all-button" onclick="copyAllConfigs('${country}')">
-                            <span class="material-icons">content_copy_all</span> Copy All
-                        </button>
-                    </div>
+            configs.forEach(config => {
+                const configDiv = document.createElement('div');
+                configDiv.className = 'output-flex';
+                configDiv.innerHTML = `
+                    <input type="text" value="${config.input_value}" readonly>
+                    <button class="copy-button" onclick="copyToClipboard('${config.input_value}')">
+                        <span class="material-icons">content_copy</span>
+                    </button>
                 `;
+                card.appendChild(configDiv);
+            });
 
-                configs.forEach(config => {
-                    const configDiv = document.createElement('div');
-                    configDiv.className = 'output-flex';
-                    configDiv.innerHTML = `
-                        <input type="text" value="${config.input_value}" readonly>
-                        <button class="copy-button" onclick="copyToClipboard('${config.input_value}')">
-                            <span class="material-icons">content_copy</span>
-                        </button>
-                    `;
-                    card.appendChild(configDiv);
-                });
+            configsContainer.appendChild(card);
+        }
+    }
 
-                configsContainer.appendChild(card);
+    function copyAllConfigs(country) {
+        const configs = apiData
+            .filter(config => config.country_text === country)
+            .map(config => config.input_value)
+            .join('\n');
+
+        navigator.clipboard.writeText(configs).then(() => {
+            alert(`All configurations for ${country} copied to clipboard!`);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Configuration copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    let apiData = [];
+    Promise.all([
+        fetch('api').then(response => response.json()),
+        fetch('countries.lock').then(response => response.json())
+    ])
+        .then(([data, countryCodes]) => {
+            apiData = data;
+            window.countryCodes = countryCodes;
+            displayConfigs(data);
+        })
+        .catch(error => {
+            const configsContainer = document.getElementById('configs');
+            configsContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to load configurations. Please try again later.</p>`;
+        });
+
+
+    fetch('https://page-views.count1.workers.dev')
+        .then(response => response.text())
+        .then(data => {
+            let countElement = document.getElementById("total-visit-count");
+            if (countElement) {
+                countElement.innerText = `Total Visits: ${data}`;
+            } else {
+                console.error("Error updating total visit count.");
             }
-        }
-
-        function copyAllConfigs(country) {
-            const configs = apiData
-                .filter(config => config.country_text === country)
-                .map(config => config.input_value)
-                .join('\n');
-
-            navigator.clipboard.writeText(configs).then(() => {
-                alert(`All configurations for ${country} copied to clipboard!`);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Configuration copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
-        }
-
-        let apiData = [];
-        Promise.all([
-            fetch('api').then(response => response.json()),
-            fetch('countries.lock').then(response => response.json())
-        ])
-            .then(([data, countryCodes]) => {
-                apiData = data;
-                window.countryCodes = countryCodes;
-                displayConfigs(data);
-            })
-            .catch(error => {
-                const configsContainer = document.getElementById('configs');
-                configsContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to load configurations. Please try again later.</p>`;
-            });
-
-        // Script to handle visit count
-        let visits = localStorage.getItem("visitCount") || 0;
-        visits++;
-        localStorage.setItem("visitCount", visits);
-        document.getElementById("user-visit-count").innerText = visits;
-
-        fetch('https://page-views.count1.workers.dev')
-            .then(response => response.text())
-            .then(data => {
-                let countElement = document.getElementById("total-visit-count");
-                if (countElement) {
-                    countElement.innerText = `Total Visits: ${data}`;
-                } else {
-                    console.error("Error updating total visit count.");
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching total visit count:", error);
-            });
-    </script>
+        })
+        .catch(error => {
+            console.error("Error fetching total visit count:", error);
+        });
+</script>
 </body>
 </html>
