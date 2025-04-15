@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VPN SiNAVM</title>
 
-    <!-- Add favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.png">
 
     <!-- Twitter Card Meta Tags -->
@@ -15,10 +14,10 @@
     <meta name="twitter:image" content="https://raw.githubusercontent.com/sinavm/vpn-sinavm/main/logo.png">
     <meta name="twitter:site" content="@sinavm">
 
-    <!-- Existing stylesheets -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/flag-icons/css/flag-icons.min.css" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -42,22 +41,38 @@
             margin: 20px;
         }
 
-        .header {
-            text-align: center;
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 24px;
+            gap: 12px;
         }
 
-        .header h1 {
-            font-size: 24px;
+        .logo {
+            max-width: 60px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .title-link {
+            font-size: 22px;
             font-weight: 600;
-            margin: 0;
-            color: #ffffff;
+            color: #ffcc00;
+            text-decoration: none;
+        }
+
+        .title-link:hover {
+            color: #ffd700;
+            text-decoration: underline;
         }
 
         .header p {
             font-size: 14px;
             color: #b0b0b0;
-            margin: 8px 0 0;
+            text-align: center;
+            margin: 8px 0 16px;
         }
 
         .button {
@@ -109,7 +124,7 @@
         .copy-all-button {
             display: inline-flex;
             align-items: center;
-            gap: 0; /* No gap between icon and text */
+            gap: 0;
             background-color: #bb86fc;
             color: #1e1e1e;
             padding: 8px 12px;
@@ -120,67 +135,14 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             width: auto;
-            line-height: 1; /* Reset line height */
+            line-height: 1;
         }
 
         .copy-all-button .material-icons {
-            margin: 0; /* Remove default margin */
-            padding: 0; /* Remove default padding */
-            font-size: 18px; /* Ensure consistent size */
+            font-size: 18px;
         }
 
         .copy-all-button:hover {
-            background-color: #9965f4;
-        }
-
-        .help-text {
-            font-size: 13px;
-            color: #b0b0b0;
-            margin: 4px 0 8px 0;
-            line-height: 1.4;
-        }
-
-        .output-flex {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px; /* Added spacing between lines */
-        }
-
-        .output-flex:last-child {
-            margin-bottom: 0; /* Remove margin for the last item */
-        }
-
-        .output-flex input[type="text"] {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #333;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            background-color: #2c2c2c;
-            color: #e0e0e0;
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .copy-button {
-            padding: 8px;
-            margin-bottom: 0;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #bb86fc;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            border: none;
-            color: #1e1e1e;
-        }
-
-        .copy-button:hover {
             background-color: #9965f4;
         }
 
@@ -203,7 +165,6 @@
 
         .footer a:hover {
             color: #9965f4;
-            text-decoration: none;
         }
 
         @keyframes fadeIn {
@@ -214,14 +175,36 @@
         .fade-in {
             animation: fadeIn 0.3s ease;
         }
+
+        .footer-left {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .footer-left a {
+            color: #bb86fc;
+            text-decoration: none;
+        }
+
+        .footer-left a:hover {
+            color: #9965f4;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="header-container">
+            <img class="logo" src="https://github.com/sinavm/sinavm/raw/refs/heads/main/IMG_7428.jpeg" alt="Logo">
+            <a href="https://t.me/sinavm" class="title-link" target="_blank">VPN SiNAVM</a>
+        </div>
         <div class="header">
-            <h1>VPN SiNAVM</h1>
             <p>Browse and copy VPN configurations easily.</p>
-            <br>
             <button class="button" onclick="copySubscriptionLink()">
                 <span class="material-icons">content_copy</span>
                 Copy Full Subscription Link
@@ -230,11 +213,16 @@
         <div id="configs"></div>
     </div>
 
+    <div class="footer-left">
+        <a href="https://t.me/sinavm" target="_blank">
+            <span class="material-icons">telegram</span> Telegram Channel
+        </a>
+        <span id="total-visit-count">Loading total visits...</span>
+    </div>
+
     <script>
-        // Subscription link
         const subscriptionLink = "https://raw.githubusercontent.com/sinavm/vpn-sinavm/main/sub-link";
 
-        // Function to copy subscription link
         function copySubscriptionLink() {
             navigator.clipboard.writeText(subscriptionLink).then(() => {
                 alert('Subscription link copied to clipboard!');
@@ -243,25 +231,19 @@
             });
         }
 
-        // Function to get flag code from country name using countries.lock
         async function getFlagCode(country) {
             try {
                 const response = await fetch('countries.lock');
                 const data = await response.json();
-                const code = data[country]?.toLowerCase(); // Convert to lowercase
-                console.log(`Country: ${country}, Code: ${code}`); // Debugging
-                return code || "globe"; // Default to globe icon if flag not found
+                const code = data[country]?.toLowerCase();
+                return code || "globe";
             } catch (error) {
-                console.error('Error fetching country codes:', error);
-                return "globe"; // Fallback to globe icon if file is not found
+                return "globe";
             }
         }
 
-        // Function to display configurations
         async function displayConfigs(data) {
             const configsContainer = document.getElementById('configs');
-
-            // Group configurations by country
             const groupedConfigs = data.reduce((acc, config) => {
                 const country = config.country_text;
                 if (!acc[country]) {
@@ -271,7 +253,6 @@
                 return acc;
             }, {});
 
-            // Render grouped configurations
             for (const [country, configs] of Object.entries(groupedConfigs)) {
                 const card = document.createElement('div');
                 card.className = 'card fade-in';
@@ -304,7 +285,6 @@
             }
         }
 
-        // Function to copy all configs for a specific country
         function copyAllConfigs(country) {
             const configs = apiData
                 .filter(config => config.country_text === country)
@@ -318,7 +298,6 @@
             });
         }
 
-        // Function to copy config to clipboard
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 alert('Configuration copied to clipboard!');
@@ -327,7 +306,6 @@
             });
         }
 
-        // Fetch data from api and countries.lock
         let apiData = [];
         Promise.all([
             fetch('api').then(response => response.json()),
@@ -335,13 +313,32 @@
         ])
             .then(([data, countryCodes]) => {
                 apiData = data;
-                window.countryCodes = countryCodes; // Store country codes globally
+                window.countryCodes = countryCodes;
                 displayConfigs(data);
             })
             .catch(error => {
-                console.error('Error fetching data:', error);
                 const configsContainer = document.getElementById('configs');
                 configsContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to load configurations. Please try again later.</p>`;
+            });
+
+        // Script to handle visit count
+        let visits = localStorage.getItem("visitCount") || 0;
+        visits++;
+        localStorage.setItem("visitCount", visits);
+        document.getElementById("user-visit-count").innerText = visits;
+
+        fetch('https://page-views.count1.workers.dev')
+            .then(response => response.text())
+            .then(data => {
+                let countElement = document.getElementById("total-visit-count");
+                if (countElement) {
+                    countElement.innerText = `Total Visits: ${data}`;
+                } else {
+                    console.error("Error updating total visit count.");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching total visit count:", error);
             });
     </script>
 </body>
